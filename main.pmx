@@ -1,0 +1,45 @@
+# Primix v1.0 — Production Server Template
+# Clean, optimized, zero garbage.
+
+start run/server
+log on
+cache on
+queue on
+
+# === CONFIGURATION ===
+server_name = "Primix-Core"
+counter = 0
+admin_key = "xK9mF2wQ7vL4pR1nT8yU5bN3hJ6cA0dG"
+
+# === SECURITY ===
+whitelist admin_key
+/add t8t mixed
+
+# === ROUTES ===
+go request /hello then
+    respond "Hello, World!"
+
+go request /api/status then
+    counter = counter + 1
+    respond json {"server": server_name, "requests": counter, "status": "operational"}
+
+go fields /api/save then
+    store on/ data
+    respond "Saved!"
+
+go request /api/data then
+    result = get to/ data
+    respond result
+
+# === PERIODIC TASKS ===
+every 5 min do
+    print "Server alive. Requests: " + counter
+
+# === DATABASE & STORAGE ===
+go request /db/init then
+    db query "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT)"
+    respond "DB Initialized"
+
+# === EMERGENCY & MONITORING ===
+# /add sos mod! backup1 backup2
+# /view in its entirety dev_laptop
